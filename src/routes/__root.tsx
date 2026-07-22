@@ -85,6 +85,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Practical answers for Ontario real estate agents." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "AskStu.ca" },
+      { name: "twitter:description", content: "Practical answers for Ontario real estate agents." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1003774-5ce8-44c8-8322-c4bc5e1b254d/id-preview-69f06b09--a4427d59-8601-47a5-ada0-5e74c6023f04.lovable.app-1784749809556.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1003774-5ce8-44c8-8322-c4bc5e1b254d/id-preview-69f06b09--a4427d59-8601-47a5-ada0-5e74c6023f04.lovable.app-1784749809556.png" },
     ],
     links: [
       {
