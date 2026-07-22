@@ -9,38 +9,65 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as S2RouteImport } from './routes/s2'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicS2ChatRouteImport } from './routes/api/public/s2-chat'
 
+const S2Route = S2RouteImport.update({
+  id: '/s2',
+  path: '/s2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicS2ChatRoute = ApiPublicS2ChatRouteImport.update({
+  id: '/api/public/s2-chat',
+  path: '/api/public/s2-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/s2': typeof S2Route
+  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/s2': typeof S2Route
+  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/s2': typeof S2Route
+  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/s2' | '/api/public/s2-chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/s2' | '/api/public/s2-chat'
+  id: '__root__' | '/' | '/s2' | '/api/public/s2-chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  S2Route: typeof S2Route
+  ApiPublicS2ChatRoute: typeof ApiPublicS2ChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/s2': {
+      id: '/s2'
+      path: '/s2'
+      fullPath: '/s2'
+      preLoaderRoute: typeof S2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +75,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/s2-chat': {
+      id: '/api/public/s2-chat'
+      path: '/api/public/s2-chat'
+      fullPath: '/api/public/s2-chat'
+      preLoaderRoute: typeof ApiPublicS2ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  S2Route: S2Route,
+  ApiPublicS2ChatRoute: ApiPublicS2ChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
