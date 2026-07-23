@@ -34,6 +34,14 @@ export function ChatSurface({ variant, autoOpenPhoto }: Props) {
     });
   }, [messages]);
 
+  useEffect(() => {
+    if (autoOpenPhoto) {
+      // Defer to next tick so the input is mounted before we click.
+      const t = setTimeout(() => fileInputRef.current?.click(), 0);
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenPhoto]);
+
   const submit = (text: string, image?: string) => {
     if (!text.trim() && !image) return;
     void sendMessage(text, image);
