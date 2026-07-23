@@ -60,7 +60,7 @@ export const Route = createFileRoute("/api/public/s2-chat")({
           // Fail open if rate-limit infra is unavailable — don't block real users.
         }
 
-        let body: { messages?: Array<{ role: string; content: string }> };
+        let body: { messages?: Array<{ role: string; content: unknown }> };
         try {
           body = await request.json();
         } catch {
@@ -107,8 +107,8 @@ export const Route = createFileRoute("/api/public/s2-chat")({
           ...userMessages.filter(
             (m) =>
               m &&
-              typeof m.content === "string" &&
-              (m.role === "user" || m.role === "assistant"),
+              (m.role === "user" || m.role === "assistant") &&
+              (typeof m.content === "string" || Array.isArray(m.content)),
           ),
         ];
 
