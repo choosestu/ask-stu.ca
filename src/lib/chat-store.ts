@@ -164,7 +164,7 @@ function reset() {
   setState({ messages: [], status: "idle", error: null });
 }
 
-export function useS2Chat() {
+export function useChat() {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return {
     messages: snap.messages,
