@@ -4,17 +4,17 @@ import { ChatSurface } from "@/components/ChatSurface";
 export const Route = createFileRoute("/s2")({
   head: () => ({
     meta: [
-      { title: "S2 — AskStu.ca" },
+      { title: "Ask Stu — Chat" },
       {
         name: "description",
         content:
-          "Chat with S2, a practical assistant for Ontario real estate agents.",
+          "Ask Stu practical Ontario real estate questions. 28 years of experience, free, no account required.",
       },
-      { property: "og:title", content: "S2 — AskStu.ca" },
+      { property: "og:title", content: "Ask Stu — Chat" },
       {
         property: "og:description",
         content:
-          "Chat with S2, a practical assistant for Ontario real estate agents.",
+          "Ask Stu practical Ontario real estate questions. 28 years of experience, free, no account required.",
       },
     ],
   }),
