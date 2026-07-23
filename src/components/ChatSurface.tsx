@@ -191,10 +191,11 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              capture="environment"
+              {...(autoOpenPhoto ? {} : { capture: "environment" as const })}
               className="hidden"
               onChange={onFileChange}
             />
+
             <button
               type="button"
               onClick={onPickPhoto}
