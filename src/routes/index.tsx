@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Camera } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
