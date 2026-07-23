@@ -6,6 +6,7 @@ import { PaperworkCTA } from "./PaperworkCTA";
 
 interface Props {
   variant: "panel" | "full";
+  autoOpenPhoto?: boolean;
 }
 
 const SUGGESTIONS = [
