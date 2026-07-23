@@ -27,14 +27,9 @@ function Index() {
         <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
           Ask Stu.
         </h1>
-        <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
-          <p>
-            After 28 years in Ontario real estate, I've answered thousands of questions from new agents. Everything from identifying what's in a mechanical room to writing offers, negotiating deals, understanding TRESA, paperwork, inspections, and everyday situations that don't get taught in licensing courses.
-          </p>
-          <p>Ask a question. Upload a photo. Get an answer.</p>
-          <p>Free. No account required.</p>
-          <p>Go ahead. Ask Stu.</p>
-        </div>
+        <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+          Not everything needs to be big business. I've spent [X] years in Ontario real estate, and a lot of that time teaching newer agents what they're actually looking at inside a house, electric or gas water heater, 100 or 200 amp service, copper or knob and tube, why that humidifier's bolted to the furnace. So here's my way of giving some of that back. Ask a question. Take a photo of anything you're not sure about. Free, no account needed.
+        </p>
         <div className="mt-8">
           <Link
             to="/s2"
