@@ -35,9 +35,13 @@ export const Route = createFileRoute("/api/public/survey")({
         }
         const { question_key, question_text, question_type, answer } = body;
         if (
-          !question_key ||
-          !question_text ||
-          !question_type ||
+          typeof question_key !== "string" ||
+          !VALID_KEYS.has(question_key) ||
+          typeof question_text !== "string" ||
+          question_text.length === 0 ||
+          question_text.length > 500 ||
+          typeof question_type !== "string" ||
+          !VALID_TYPES.has(question_type) ||
           typeof answer !== "string" ||
           answer.length === 0 ||
           answer.length > 2000
