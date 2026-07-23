@@ -49,8 +49,8 @@ type PayloadContent =
       | { type: "image_url"; image_url: { url: string } }
     >;
 
-function toPayloadContent(m: ChatMessage): PayloadContent {
-  if (m.role === "user" && m.imageDataUrl) {
+function toPayloadContent(m: ChatMessage, includeImage: boolean): PayloadContent {
+  if (m.role === "user" && m.imageDataUrl && includeImage) {
     const parts: Array<
       | { type: "text"; text: string }
       | { type: "image_url"; image_url: { url: string } }
@@ -85,9 +85,11 @@ async function sendMessage(text: string, imageDataUrl?: string) {
     error: null,
   });
 
-  const payload = state.messages
-    .filter((m) => !m.streaming)
-    .map((m) => ({ role: m.role, content: toPayloadContent(m) }));
+  const priorMessages = state.messages.filter((m) => !m.streaming);
+  const payload = priorMessages.map((m, i) => ({
+    role: m.role,
+    content: toPayloadContent(m, i === priorMessages.length - 1),
+  }));
 
   try {
     const res = await fetch("/api/public/s2-chat", {
