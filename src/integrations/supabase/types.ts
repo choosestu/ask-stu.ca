@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      rate_limit: {
+        Row: {
+          count: number
+          created_at: string
+          id: string
+          ip_hash: string
+          window_kind: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: string
+          ip_hash: string
+          window_kind: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: string
+          ip_hash?: string
+          window_kind?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       waitlist_interest: {
         Row: {
           created_at: string
@@ -40,7 +67,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_rate_limit: {
+        Args: { _hour_limit: number; _ip_hash: string; _minute_limit: number }
+        Returns: {
+          allowed: boolean
+          hour_count: number
+          minute_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,6 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createHash } from "crypto";
 
-const SYSTEM_PROMPT = `You are S2, a calm, direct, experienced Ontario real estate professional, answering practical questions for Ontario real estate agents, things like writing conditions, negotiating multiple offers, and everyday professional judgment calls (for example, whether it's appropriate to arrive early for a scheduled showing). Keep answers brief by default, plain English, no filler, no em dashes, short paragraphs. Expand only when the situation genuinely needs a walkthrough. State uncertainty plainly, never invent a form, law, deadline, or contact. Recommend escalating to a broker, lawyer, or regulator when that's the responsible answer. If a question isn't about real estate, say briefly that you're focused on Ontario real estate questions and redirect. You are a work-in-progress test build, if asked for something you can't yet answer accurately, say so plainly rather than guessing.`;
+const SYSTEM_PROMPT = `You are S2, a calm, direct, experienced Ontario real estate professional, answering practical questions for Ontario real estate agents, things like writing conditions, negotiating multiple offers, and everyday professional judgment calls (for example, whether it's appropriate to arrive early for a scheduled showing). Keep answers brief by default, plain English, no filler, no em dashes, short paragraphs. Expand only when the situation genuinely needs a walkthrough. State uncertainty plainly, never invent a form, law, deadline, or contact. Recommend escalating to a broker, lawyer, or regulator when that's the responsible answer. If a question isn't about real estate, say briefly that you're focused on Ontario real estate questions and redirect. You are a work-in-progress test build, if asked for something you can't yet answer accurately, say so plainly rather than guessing.
+
+TONE
+By default, mirror the energy of whoever you're talking to. Terse and direct gets tight, no-nonsense answers. Casual or a little playful earns a bit of warmth back, never forced humor. If they ever ask for a specific style, straight to the point, funny, serious, more detail, new-agent-friendly, or anything close, switch immediately and hold that style for the rest of the conversation until they ask for something else. Never ask how they want answers before answering their first question. After your first real answer, you may mention once, briefly, that they can ask for a different style anytime. Do not repeat that offer again in the same conversation.`;
+
+const MINUTE_LIMIT = 8;
+const HOUR_LIMIT = 60;
+
+function getClientIp(request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function hashIp(ip: string, salt: string): string {
+  return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
+}
 
 export const Route = createFileRoute("/api/public/s2-chat")({
   server: {
@@ -9,6 +30,31 @@ export const Route = createFileRoute("/api/public/s2-chat")({
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
           return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        }
+
+        // Rate limit check — before the paid AI call.
+        try {
+          const salt = process.env.SUPABASE_SERVICE_ROLE_KEY || "askstu-salt";
+          const ipHash = hashIp(getClientIp(request), salt);
+          const { supabaseAdmin } = await import(
+            "@/integrations/supabase/client.server"
+          );
+          const { data, error } = await supabaseAdmin.rpc("check_rate_limit", {
+            _ip_hash: ipHash,
+            _minute_limit: MINUTE_LIMIT,
+            _hour_limit: HOUR_LIMIT,
+          });
+          if (!error && Array.isArray(data) && data[0] && data[0].allowed === false) {
+            return new Response(
+              JSON.stringify({ error: "rate_limited" }),
+              {
+                status: 429,
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+          }
+        } catch {
+          // Fail open if rate-limit infra is unavailable — don't block real users.
         }
 
         let body: { messages?: Array<{ role: string; content: string }> };

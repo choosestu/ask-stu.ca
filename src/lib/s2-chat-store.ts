@@ -69,6 +69,11 @@ async function sendMessage(text: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: payload }),
     });
+    if (res.status === 429) {
+      throw new Error(
+        "Getting a lot of questions right now, try again in a few minutes.",
+      );
+    }
     if (!res.ok || !res.body) {
       throw new Error(`Chat failed (${res.status})`);
     }
@@ -118,7 +123,7 @@ async function sendMessage(text: string) {
     setState({
       messages: state.messages.map((m) =>
         m.id === assistantMsg.id
-          ? { ...m, streaming: false, content: m.content || "Sorry, I couldn't respond." }
+          ? { ...m, streaming: false, content: m.content || message }
           : m,
       ),
       status: "error",
