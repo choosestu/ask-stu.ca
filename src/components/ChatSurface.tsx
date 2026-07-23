@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 const GREETING =
   "I'm S2, ask me anything about Ontario real estate, or upload a photo of something you're not sure about.";
 
-export function ChatSurface({ variant }: Props) {
+export function ChatSurface({ variant, autoOpenPhoto }: Props) {
   const { messages, status, error, sendMessage } = useS2Chat();
   const [input, setInput] = useState("");
   const [pendingImage, setPendingImage] = useState<string | null>(null);
