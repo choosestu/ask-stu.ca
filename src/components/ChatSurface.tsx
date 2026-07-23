@@ -7,9 +7,10 @@ import type { ChatMessage } from "@/lib/chat-store";
 
 interface Props {
   variant: "panel" | "full";
+  autoOpenPhoto?: boolean;
 }
 
-export function ChatSurface({ variant }: Props) {
+export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
   const {
     messages,
     status,
@@ -24,6 +25,7 @@ export function ChatSurface({ variant }: Props) {
   const [preparingImage, setPreparingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const autoOpenedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -31,6 +33,15 @@ export function ChatSurface({ variant }: Props) {
       behavior: "smooth",
     });
   }, [messages]);
+
+  useEffect(() => {
+    if (autoOpenPhoto && !autoOpenedRef.current) {
+      autoOpenedRef.current = true;
+      // Give the input a tick to mount, then open the picker.
+      const t = setTimeout(() => fileInputRef.current?.click(), 60);
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenPhoto]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,10 +191,11 @@ export function ChatSurface({ variant }: Props) {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              capture="environment"
+              {...(autoOpenPhoto ? {} : { capture: "environment" as const })}
               className="hidden"
               onChange={onFileChange}
             />
+
             <button
               type="button"
               onClick={onPickPhoto}

@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChatSurface } from "@/components/ChatSurface";
 
+type ChatSearch = { photo?: number };
+
 export const Route = createFileRoute("/chat")({
+  validateSearch: (search: Record<string, unknown>): ChatSearch => {
+    const raw = search.photo;
+    const photo = typeof raw === "number" ? raw : Number(raw);
+    return { photo: Number.isFinite(photo) ? photo : undefined };
+  },
   head: () => ({
     meta: [
       { title: "Ask Stu — Chat" },
@@ -22,5 +29,6 @@ export const Route = createFileRoute("/chat")({
 });
 
 function ChatPage() {
-  return <ChatSurface variant="full" />;
+  const { photo } = Route.useSearch();
+  return <ChatSurface variant="full" autoOpenPhoto={photo === 1} />;
 }
