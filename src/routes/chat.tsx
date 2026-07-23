@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
 import { ChatSurface } from "@/components/ChatSurface";
 
-const chatSearchSchema = z.object({
-  photo: fallback(z.number().int(), 0).default(0),
-});
+type ChatSearch = { photo?: number };
 
 export const Route = createFileRoute("/chat")({
-  validateSearch: zodValidator(chatSearchSchema),
+  validateSearch: (search: Record<string, unknown>): ChatSearch => {
+    const raw = search.photo;
+    const photo = typeof raw === "number" ? raw : Number(raw);
+    return { photo: Number.isFinite(photo) ? photo : undefined };
+  },
   head: () => ({
     meta: [
       { title: "Ask Stu — Chat" },
