@@ -33,7 +33,11 @@ export const Route = createFileRoute("/api/public/chat")({
       POST: async ({ request }) => {
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
-          return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+          console.error("[chat] LOVABLE_API_KEY is not configured");
+          return new Response(
+            JSON.stringify({ error: "chat_unavailable" }),
+            { status: 503, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         // Rate limit check — before the paid AI call.
