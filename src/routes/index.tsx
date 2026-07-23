@@ -36,12 +36,20 @@ function Index() {
           <p>Free. No account required.</p>
           <p>Go ahead. Ask Stu.</p>
         </div>
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link
             to="/s2"
             className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Ask Stu
+          </Link>
+          <Link
+            to="/s2"
+            search={{ photo: 1 }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Camera className="h-4 w-4" />
+            What is this?
           </Link>
         </div>
       </div>
