@@ -6,6 +6,7 @@ export interface ChatMessage {
   id: string;
   role: ChatRole;
   content: string;
+  imageDataUrl?: string;
   streaming?: boolean;
 }
 
@@ -41,11 +42,36 @@ const uid = () =>
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2);
 
-async function sendMessage(text: string) {
-  const trimmed = text.trim();
-  if (!trimmed || state.status === "streaming") return;
+type PayloadContent =
+  | string
+  | Array<
+      | { type: "text"; text: string }
+      | { type: "image_url"; image_url: { url: string } }
+    >;
 
-  const userMsg: ChatMessage = { id: uid(), role: "user", content: trimmed };
+function toPayloadContent(m: ChatMessage): PayloadContent {
+  if (m.role === "user" && m.imageDataUrl) {
+    const parts: Array<
+      | { type: "text"; text: string }
+      | { type: "image_url"; image_url: { url: string } }
+    > = [];
+    if (m.content) parts.push({ type: "text", text: m.content });
+    parts.push({ type: "image_url", image_url: { url: m.imageDataUrl } });
+    return parts;
+  }
+  return m.content;
+}
+
+async function sendMessage(text: string, imageDataUrl?: string) {
+  const trimmed = text.trim();
+  if ((!trimmed && !imageDataUrl) || state.status === "streaming") return;
+
+  const userMsg: ChatMessage = {
+    id: uid(),
+    role: "user",
+    content: trimmed,
+    imageDataUrl,
+  };
   const assistantMsg: ChatMessage = {
     id: uid(),
     role: "assistant",
@@ -61,7 +87,7 @@ async function sendMessage(text: string) {
 
   const payload = state.messages
     .filter((m) => !m.streaming)
-    .map((m) => ({ role: m.role, content: m.content }));
+    .map((m) => ({ role: m.role, content: toPayloadContent(m) }));
 
   try {
     const res = await fetch("/api/public/s2-chat", {
