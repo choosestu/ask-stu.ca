@@ -13,8 +13,9 @@ const MINUTE_LIMIT = 8;
 const HOUR_LIMIT = 60;
 
 function getClientIp(request: Request): string {
-  const fwd = request.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
+  // Trust only platform/edge-set headers. Cloudflare Workers set
+  // `cf-connecting-ip`; the hosting edge sets `x-real-ip`. Do NOT read
+  // `x-forwarded-for` — clients can spoof it to bypass rate limits.
   return (
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-real-ip") ||
