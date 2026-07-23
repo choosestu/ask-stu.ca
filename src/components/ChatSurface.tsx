@@ -78,15 +78,6 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
     isLocked ||
     (!input.trim() && !pendingImage);
 
-  const suggestions = [
-    "Is it okay to show up 15 minutes early for a showing?",
-    "How do I write a financing condition that actually protects my buyer?",
-    "What's the right move when I'm up against multiple offers?",
-    "What does TRESA change about how I represent a client?",
-  ];
-
-  const isEmpty = messages.length === 0;
-
   return (
     <div
       className={
@@ -95,86 +86,55 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
           : "flex h-[70vh] max-h-[560px] flex-col"
       }
     >
-      <div
-        ref={scrollRef}
-        className={
-          "flex-1 overflow-y-auto px-4 " +
-          (isEmpty ? "flex items-center justify-center py-8" : "py-4")
-        }
-      >
-        {isEmpty ? (
-          <div className="mx-auto w-full max-w-2xl text-center">
-            <h1
-              className={
-                (isFull ? "text-3xl sm:text-4xl" : "text-2xl") +
-                " font-serif font-normal tracking-tight text-foreground"
-              }
-            >
-              Hi, I'm Stu.
-            </h1>
-            <p className="mt-3 text-base text-muted-foreground">
-              Ask me anything about Ontario real estate.
-            </p>
-            <div className="mx-auto mt-8 grid gap-2 sm:grid-cols-2">
-              {suggestions.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => void sendMessage(s)}
-                  disabled={status === "streaming" || isLocked}
-                  className="rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted disabled:opacity-60"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="mx-auto flex max-w-2xl flex-col gap-4">
-            {messages.map((m) => {
-              if (m.role === "survey" && m.survey) {
-                return (
-                  <SurveyCard
-                    key={m.id}
-                    message={m}
-                    onAnswer={(answer) => submitSurveyAnswer(m.id, answer)}
-                    onContinue={continueAfterSurvey}
-                    onPrefill={(text) => setInput(text)}
-                    onOpenPhoto={onPickPhoto}
-                  />
-                );
-              }
-              return (
-                <div key={m.id} className="flex flex-col">
-                  <div
-                    className={
-                      m.role === "user"
-                        ? "self-end rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap"
-                        : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%] whitespace-pre-wrap"
-                    }
-                  >
-                    {m.role === "user" && m.imageDataUrl && (
-                      <img
-                        src={m.imageDataUrl}
-                        alt="Attached"
-                        className="mb-2 max-h-64 rounded-lg object-cover"
-                      />
-                    )}
-                    {m.content || (m.streaming ? "…" : "")}
-                  </div>
-                  {m.role === "assistant" && !m.streaming && m.content && (
-                    <div className="self-start">
-                      <PaperworkCTA />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            {error && <div className="text-xs text-destructive">{error}</div>}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+        {messages.length === 0 && (
+          <div className="mx-auto max-w-md py-8 text-center text-sm text-muted-foreground">
+            I'm Stu, ask me anything about Ontario real estate.
           </div>
         )}
+        <div className="mx-auto flex max-w-2xl flex-col gap-4">
+          {messages.map((m) => {
+            if (m.role === "survey" && m.survey) {
+              return (
+                <SurveyCard
+                  key={m.id}
+                  message={m}
+                  onAnswer={(answer) => submitSurveyAnswer(m.id, answer)}
+                  onContinue={continueAfterSurvey}
+                  onPrefill={(text) => setInput(text)}
+                  onOpenPhoto={onPickPhoto}
+                />
+              );
+            }
+            return (
+              <div key={m.id} className="flex flex-col">
+                <div
+                  className={
+                    m.role === "user"
+                      ? "self-end rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap"
+                      : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%] whitespace-pre-wrap"
+                  }
+                >
+                  {m.role === "user" && m.imageDataUrl && (
+                    <img
+                      src={m.imageDataUrl}
+                      alt="Attached"
+                      className="mb-2 max-h-64 rounded-lg object-cover"
+                    />
+                  )}
+                  {m.content || (m.streaming ? "…" : "")}
+                </div>
+                {m.role === "assistant" && !m.streaming && m.content && (
+                  <div className="self-start">
+                    <PaperworkCTA />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {error && <div className="text-xs text-destructive">{error}</div>}
+        </div>
       </div>
-
 
       <form
         onSubmit={onSubmit}
