@@ -123,7 +123,7 @@ async function sendMessage(text: string) {
     setState({
       messages: state.messages.map((m) =>
         m.id === assistantMsg.id
-          ? { ...m, streaming: false, content: m.content || "Sorry, I couldn't respond." }
+          ? { ...m, streaming: false, content: m.content || message }
           : m,
       ),
       status: "error",
