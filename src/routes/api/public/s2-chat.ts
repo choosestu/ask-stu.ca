@@ -65,8 +65,42 @@ export const Route = createFileRoute("/api/public/s2-chat")({
         }
 
         const userMessages = Array.isArray(body.messages) ? body.messages : [];
+
+        // Load verified knowledge sources and append as a labeled reference section.
+        let referenceBlock = "";
+        try {
+          const { supabaseAdmin } = await import(
+            "@/integrations/supabase/client.server"
+          );
+          const { data: sources } = await supabaseAdmin
+            .from("knowledge_sources")
+            .select("topic, title, issuing_body, effective_date, passage, source_url")
+            .eq("verified", true);
+          if (sources && sources.length > 0) {
+            const entries = sources
+              .map((s, i) => {
+                const parts = [
+                  `[${i + 1}] Topic: ${s.topic}`,
+                  s.title ? `Title: ${s.title}` : null,
+                  s.issuing_body ? `Issuing body: ${s.issuing_body}` : null,
+                  s.effective_date ? `Effective date: ${s.effective_date}` : null,
+                  s.passage ? `Passage: ${s.passage}` : null,
+                  s.source_url ? `Source: ${s.source_url}` : null,
+                ].filter(Boolean);
+                return parts.join("\n");
+              })
+              .join("\n\n");
+            referenceBlock = `\n\nVERIFIED REFERENCE SOURCES\nThe following passages are the only material you may treat as settled fact. If a user's question is answered by one of these passages, state the answer plainly and cite the source (title and URL). If the topic is not covered in this section, say plainly that it isn't in your verified reference set yet and offer general orientation only if useful, clearly labeled as not sourced. Never present unsourced general knowledge as if it came from these references. Never invent a source, form, rule number, or date.\n\n${entries}`;
+          } else {
+            referenceBlock = `\n\nVERIFIED REFERENCE SOURCES\n(None loaded.) Do not present any specific rule, deadline, form, or citation as settled fact. Say plainly when a topic isn't in your verified reference set yet.`;
+          }
+        } catch {
+          // If reference load fails, still respond but without fabricated citations.
+          referenceBlock = `\n\nVERIFIED REFERENCE SOURCES\n(Unavailable this request.) Do not cite specific rules or sources; say plainly when a topic isn't in your verified reference set yet.`;
+        }
+
         const messages = [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + referenceBlock },
           ...userMessages.filter(
             (m) =>
               m &&
