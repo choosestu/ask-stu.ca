@@ -1,0 +1,74 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { createHash } from "crypto";
+
+function getClientIp(request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function hashIp(ip: string, salt: string): string {
+  return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
+}
+
+export const Route = createFileRoute("/api/public/survey")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        let body: {
+          question_key?: string;
+          question_text?: string;
+          question_type?: string;
+          answer?: string;
+        };
+        try {
+          body = await request.json();
+        } catch {
+          return new Response("Invalid JSON", { status: 400 });
+        }
+        const { question_key, question_text, question_type, answer } = body;
+        if (
+          !question_key ||
+          !question_text ||
+          !question_type ||
+          typeof answer !== "string" ||
+          answer.length === 0 ||
+          answer.length > 2000
+        ) {
+          return new Response("Invalid payload", { status: 400 });
+        }
+
+        try {
+          const salt = process.env.SUPABASE_SERVICE_ROLE_KEY || "askstu-salt";
+          const ipHash = hashIp(getClientIp(request), salt);
+          const { supabaseAdmin } = await import(
+            "@/integrations/supabase/client.server"
+          );
+          const { error } = await supabaseAdmin
+            .from("survey_responses")
+            .insert({
+              question_key,
+              question_text,
+              question_type,
+              answer,
+              ip_hash: ipHash,
+            });
+          if (error) {
+            return new Response("Insert failed", { status: 500 });
+          }
+        } catch {
+          return new Response("Server error", { status: 500 });
+        }
+
+        return new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    },
+  },
+});
