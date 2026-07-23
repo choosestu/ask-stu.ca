@@ -86,12 +86,10 @@ async function sendMessage(text: string, imageDataUrl?: string) {
   });
 
   const priorMessages = state.messages.filter((m) => !m.streaming);
-  const payload = [
-    ...priorMessages.map((m) => ({ role: m.role, content: toPayloadContent(m, false) })),
-    { role: userMsg.role, content: toPayloadContent(userMsg, true) },
-  ];
-  // userMsg was already appended to state above; drop the duplicate from payload
-  payload.splice(priorMessages.length - 1, 1);
+  const payload = priorMessages.map((m, i) => ({
+    role: m.role,
+    content: toPayloadContent(m, i === priorMessages.length - 1),
+  }));
 
   try {
     const res = await fetch("/api/public/s2-chat", {
