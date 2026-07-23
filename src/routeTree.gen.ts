@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as S2RouteImport } from './routes/s2'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicSurveyRouteImport } from './routes/api/public/survey'
 import { Route as ApiPublicChatRouteImport } from './routes/api/public/chat'
 
 const S2Route = S2RouteImport.update({
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSurveyRoute = ApiPublicSurveyRouteImport.update({
+  id: '/api/public/survey',
+  path: '/api/public/survey',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicChatRoute = ApiPublicChatRouteImport.update({
   id: '/api/public/chat',
   path: '/api/public/chat',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/s2': typeof S2Route
   '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/survey': typeof ApiPublicSurveyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/s2': typeof S2Route
   '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/survey': typeof ApiPublicSurveyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,20 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/s2': typeof S2Route
   '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/survey': typeof ApiPublicSurveyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/s2' | '/api/public/chat'
+  fullPaths: '/' | '/chat' | '/s2' | '/api/public/chat' | '/api/public/survey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/s2' | '/api/public/chat'
-  id: '__root__' | '/' | '/chat' | '/s2' | '/api/public/chat'
+  to: '/' | '/chat' | '/s2' | '/api/public/chat' | '/api/public/survey'
+  id:
+    | '__root__'
+    | '/'
+    | '/chat'
+    | '/s2'
+    | '/api/public/chat'
+    | '/api/public/survey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +82,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   S2Route: typeof S2Route
   ApiPublicChatRoute: typeof ApiPublicChatRoute
+  ApiPublicSurveyRoute: typeof ApiPublicSurveyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/survey': {
+      id: '/api/public/survey'
+      path: '/api/public/survey'
+      fullPath: '/api/public/survey'
+      preLoaderRoute: typeof ApiPublicSurveyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/chat': {
       id: '/api/public/chat'
       path: '/api/public/chat'
@@ -107,6 +130,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   S2Route: S2Route,
   ApiPublicChatRoute: ApiPublicChatRoute,
+  ApiPublicSurveyRoute: ApiPublicSurveyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
