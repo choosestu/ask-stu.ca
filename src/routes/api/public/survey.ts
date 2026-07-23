@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHash } from "crypto";
+import { SURVEY_QUESTIONS } from "@/lib/survey-questions";
+
+const VALID_KEYS = new Set(SURVEY_QUESTIONS.map((q) => q.key));
+const VALID_TYPES = new Set(["multiple_choice", "short_answer", "true_false"]);
 
 function getClientIp(request: Request): string {
-  const fwd = request.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
+  // Trust only platform/edge-set headers; ignore client-supplied x-forwarded-for.
   return (
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-real-ip") ||
@@ -32,9 +35,13 @@ export const Route = createFileRoute("/api/public/survey")({
         }
         const { question_key, question_text, question_type, answer } = body;
         if (
-          !question_key ||
-          !question_text ||
-          !question_type ||
+          typeof question_key !== "string" ||
+          !VALID_KEYS.has(question_key) ||
+          typeof question_text !== "string" ||
+          question_text.length === 0 ||
+          question_text.length > 500 ||
+          typeof question_type !== "string" ||
+          !VALID_TYPES.has(question_type) ||
           typeof answer !== "string" ||
           answer.length === 0 ||
           answer.length > 2000

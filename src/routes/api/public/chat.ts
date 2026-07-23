@@ -13,8 +13,9 @@ const MINUTE_LIMIT = 8;
 const HOUR_LIMIT = 60;
 
 function getClientIp(request: Request): string {
-  const fwd = request.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
+  // Trust only platform/edge-set headers. Cloudflare Workers set
+  // `cf-connecting-ip`; the hosting edge sets `x-real-ip`. Do NOT read
+  // `x-forwarded-for` — clients can spoof it to bypass rate limits.
   return (
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-real-ip") ||
@@ -32,7 +33,11 @@ export const Route = createFileRoute("/api/public/chat")({
       POST: async ({ request }) => {
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
-          return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+          console.error("[chat] LOVABLE_API_KEY is not configured");
+          return new Response(
+            JSON.stringify({ error: "chat_unavailable" }),
+            { status: 503, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         // Rate limit check — before the paid AI call.
@@ -131,9 +136,13 @@ export const Route = createFileRoute("/api/public/chat")({
 
         if (!upstream.ok || !upstream.body) {
           const text = await upstream.text().catch(() => "");
-          return new Response(text || "Upstream error", {
-            status: upstream.status || 502,
-          });
+          console.error(
+            `[chat] upstream error status=${upstream.status} body=${text.slice(0, 500)}`,
+          );
+          return new Response(
+            JSON.stringify({ error: "chat_unavailable" }),
+            { status: 502, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         return new Response(upstream.body, {
