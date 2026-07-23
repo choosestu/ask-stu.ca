@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { MessageCircle } from "lucide-react";
 import { ChatSurface } from "./ChatSurface";
 
 export function FloatingChatButton() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Don't show on /s2 (full page chat already visible)
-  if (pathname === "/s2") return null;
+  // Don't show on /chat (full page chat already visible)
+  if (pathname === "/chat") return null;
 
   return (
     <>
@@ -17,7 +18,7 @@ export function FloatingChatButton() {
             <div className="text-sm font-semibold text-foreground">Ask Stu</div>
             <div className="flex items-center gap-3">
               <Link
-                to="/s2"
+                to="/chat"
                 onClick={() => setOpen(false)}
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
@@ -42,7 +43,7 @@ export function FloatingChatButton() {
         aria-label="Open chat"
         className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
       >
-        <span className="text-lg font-semibold">S2</span>
+        <MessageCircle className="h-6 w-6" />
       </button>
     </>
   );
