@@ -9,65 +9,48 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as S2RouteImport } from './routes/s2'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiPublicS2ChatRouteImport } from './routes/api/public/s2-chat'
+import { Route as ApiPublicChatRouteImport } from './routes/api/public/chat'
 
-const S2Route = S2RouteImport.update({
-  id: '/s2',
-  path: '/s2',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicS2ChatRoute = ApiPublicS2ChatRouteImport.update({
-  id: '/api/public/s2-chat',
-  path: '/api/public/s2-chat',
+const ApiPublicChatRoute = ApiPublicChatRouteImport.update({
+  id: '/api/public/chat',
+  path: '/api/public/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/s2': typeof S2Route
-  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/s2': typeof S2Route
-  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/s2': typeof S2Route
-  '/api/public/s2-chat': typeof ApiPublicS2ChatRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/s2' | '/api/public/s2-chat'
+  fullPaths: '/' | '/api/public/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/s2' | '/api/public/s2-chat'
-  id: '__root__' | '/' | '/s2' | '/api/public/s2-chat'
+  to: '/' | '/api/public/chat'
+  id: '__root__' | '/' | '/api/public/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  S2Route: typeof S2Route
-  ApiPublicS2ChatRoute: typeof ApiPublicS2ChatRoute
+  ApiPublicChatRoute: typeof ApiPublicChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/s2': {
-      id: '/s2'
-      path: '/s2'
-      fullPath: '/s2'
-      preLoaderRoute: typeof S2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -75,11 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/s2-chat': {
-      id: '/api/public/s2-chat'
-      path: '/api/public/s2-chat'
-      fullPath: '/api/public/s2-chat'
-      preLoaderRoute: typeof ApiPublicS2ChatRouteImport
+    '/api/public/chat': {
+      id: '/api/public/chat'
+      path: '/api/public/chat'
+      fullPath: '/api/public/chat'
+      preLoaderRoute: typeof ApiPublicChatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,19 +70,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  S2Route: S2Route,
-  ApiPublicS2ChatRoute: ApiPublicS2ChatRoute,
+  ApiPublicChatRoute: ApiPublicChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

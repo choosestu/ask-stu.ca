@@ -26,7 +26,7 @@ function hashIp(ip: string, salt: string): string {
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
 }
 
-export const Route = createFileRoute("/api/public/s2-chat")({
+export const Route = createFileRoute("/api/public/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {

@@ -92,7 +92,7 @@ async function sendMessage(text: string, imageDataUrl?: string) {
   }));
 
   try {
-    const res = await fetch("/api/public/s2-chat", {
+    const res = await fetch("/api/public/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: payload }),
