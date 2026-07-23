@@ -14,7 +14,7 @@ export function FloatingChatButton() {
       {open && (
         <div className="fixed bottom-20 right-4 z-50 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
-            <div className="text-sm font-semibold text-foreground">S2</div>
+            <div className="text-sm font-semibold text-foreground">Ask Stu</div>
             <div className="flex items-center gap-3">
               <Link
                 to="/s2"
