@@ -49,8 +49,8 @@ type PayloadContent =
       | { type: "image_url"; image_url: { url: string } }
     >;
 
-function toPayloadContent(m: ChatMessage): PayloadContent {
-  if (m.role === "user" && m.imageDataUrl) {
+function toPayloadContent(m: ChatMessage, includeImage: boolean): PayloadContent {
+  if (m.role === "user" && m.imageDataUrl && includeImage) {
     const parts: Array<
       | { type: "text"; text: string }
       | { type: "image_url"; image_url: { url: string } }
