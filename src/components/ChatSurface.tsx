@@ -6,6 +6,7 @@ import { PaperworkCTA } from "./PaperworkCTA";
 
 interface Props {
   variant: "panel" | "full";
+  autoOpenPhoto?: boolean;
 }
 
 const SUGGESTIONS = [
@@ -18,7 +19,7 @@ const SUGGESTIONS = [
 const GREETING =
   "I'm S2, ask me anything about Ontario real estate, or upload a photo of something you're not sure about.";
 
-export function ChatSurface({ variant }: Props) {
+export function ChatSurface({ variant, autoOpenPhoto }: Props) {
   const { messages, status, error, sendMessage } = useS2Chat();
   const [input, setInput] = useState("");
   const [pendingImage, setPendingImage] = useState<string | null>(null);
@@ -32,6 +33,14 @@ export function ChatSurface({ variant }: Props) {
       behavior: "smooth",
     });
   }, [messages]);
+
+  useEffect(() => {
+    if (autoOpenPhoto) {
+      // Defer to next tick so the input is mounted before we click.
+      const t = setTimeout(() => fileInputRef.current?.click(), 0);
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenPhoto]);
 
   const submit = (text: string, image?: string) => {
     if (!text.trim() && !image) return;
