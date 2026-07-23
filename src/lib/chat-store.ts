@@ -1,6 +1,8 @@
 import { useSyncExternalStore, useCallback } from "react";
+import type { SurveyQuestion } from "./survey-questions";
+import { pickRandomSurveyQuestion } from "./survey-questions";
 
-export type ChatRole = "user" | "assistant";
+export type ChatRole = "user" | "assistant" | "survey";
 
 export interface ChatMessage {
   id: string;
@@ -8,15 +10,35 @@ export interface ChatMessage {
   content: string;
   imageDataUrl?: string;
   streaming?: boolean;
+  survey?: SurveyQuestion;
+  surveyAnswer?: string;
+  surveyRevealed?: boolean;
+}
+
+interface PendingSend {
+  text: string;
+  imageDataUrl?: string;
 }
 
 interface ChatState {
   messages: ChatMessage[];
   status: "idle" | "streaming" | "error";
   error: string | null;
+  userMessageCount: number;
+  surveyAsked: boolean;
+  pendingSurveyId: string | null;
+  pendingSend: PendingSend | null;
 }
 
-let state: ChatState = { messages: [], status: "idle", error: null };
+let state: ChatState = {
+  messages: [],
+  status: "idle",
+  error: null,
+  userMessageCount: 0,
+  surveyAsked: false,
+  pendingSurveyId: null,
+  pendingSend: null,
+};
 const listeners = new Set<() => void>();
 
 function setState(next: Partial<ChatState>) {
@@ -62,9 +84,9 @@ function toPayloadContent(m: ChatMessage, includeImage: boolean): PayloadContent
   return m.content;
 }
 
-async function sendMessage(text: string, imageDataUrl?: string) {
+async function actuallySend(text: string, imageDataUrl?: string) {
   const trimmed = text.trim();
-  if ((!trimmed && !imageDataUrl) || state.status === "streaming") return;
+  if (!trimmed && !imageDataUrl) return;
 
   const userMsg: ChatMessage = {
     id: uid(),
@@ -83,12 +105,15 @@ async function sendMessage(text: string, imageDataUrl?: string) {
     messages: [...state.messages, userMsg, assistantMsg],
     status: "streaming",
     error: null,
+    userMessageCount: state.userMessageCount + 1,
   });
 
-  const priorMessages = state.messages.filter((m) => !m.streaming);
-  const payload = priorMessages.map((m, i) => ({
+  const priorChat = state.messages.filter(
+    (m) => !m.streaming && (m.role === "user" || m.role === "assistant"),
+  );
+  const payload = priorChat.map((m, i) => ({
     role: m.role,
-    content: toPayloadContent(m, i === priorMessages.length - 1),
+    content: toPayloadContent(m, i === priorChat.length - 1),
   }));
 
   try {
@@ -160,8 +185,93 @@ async function sendMessage(text: string, imageDataUrl?: string) {
   }
 }
 
+async function sendMessage(text: string, imageDataUrl?: string) {
+  const trimmed = text.trim();
+  if ((!trimmed && !imageDataUrl) || state.status === "streaming") return;
+  if (state.pendingSurveyId) return;
+
+  // Intercept before the 6th user message with a random survey question.
+  if (!state.surveyAsked && state.userMessageCount >= 5) {
+    const q = pickRandomSurveyQuestion();
+    const surveyMsg: ChatMessage = {
+      id: uid(),
+      role: "survey",
+      content: "",
+      survey: q,
+    };
+    setState({
+      messages: [...state.messages, surveyMsg],
+      pendingSurveyId: surveyMsg.id,
+      pendingSend: { text: trimmed, imageDataUrl },
+    });
+    return;
+  }
+
+  await actuallySend(trimmed, imageDataUrl);
+}
+
+async function submitSurveyAnswer(messageId: string, answer: string) {
+  const msg = state.messages.find((m) => m.id === messageId);
+  if (!msg || msg.role !== "survey" || !msg.survey) return;
+  const q = msg.survey;
+
+  // Update UI immediately.
+  setState({
+    messages: state.messages.map((m) =>
+      m.id === messageId
+        ? {
+            ...m,
+            surveyAnswer: answer,
+            surveyRevealed: q.type === "true_false" ? true : m.surveyRevealed,
+          }
+        : m,
+    ),
+  });
+
+  // Fire-and-forget insert; don't block continuation on network failure.
+  try {
+    await fetch("/api/public/survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question_key: q.key,
+        question_text: q.text,
+        question_type: q.type,
+        answer,
+      }),
+    });
+  } catch {
+    /* swallow — survey persistence is best-effort */
+  }
+
+  // For true_false, wait for continueAfterSurvey (user sees reveal + try it).
+  if (q.type === "true_false") return;
+
+  finishSurvey();
+}
+
+function finishSurvey() {
+  const pending = state.pendingSend;
+  setState({
+    surveyAsked: true,
+    pendingSurveyId: null,
+    pendingSend: null,
+  });
+  if (pending) {
+    void actuallySend(pending.text, pending.imageDataUrl);
+  }
+}
+
 function reset() {
-  setState({ messages: [], status: "idle", error: null });
+  setState({
+    messages: [],
+    status: "idle",
+    error: null,
+    userMessageCount: 0,
+    surveyAsked: false,
+    pendingSurveyId: null,
+    pendingSend: null,
+  });
 }
 
 export function useChat() {
@@ -170,7 +280,10 @@ export function useChat() {
     messages: snap.messages,
     status: snap.status,
     error: snap.error,
+    pendingSurveyId: snap.pendingSurveyId,
     sendMessage: useCallback(sendMessage, []),
+    submitSurveyAnswer: useCallback(submitSurveyAnswer, []),
+    continueAfterSurvey: useCallback(finishSurvey, []),
     reset: useCallback(reset, []),
   };
 }

@@ -80,6 +80,36 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_responses: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          ip_hash: string | null
+          question_key: string
+          question_text: string
+          question_type: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          question_key: string
+          question_text: string
+          question_type: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          question_key?: string
+          question_text?: string
+          question_type?: string
+        }
+        Relationships: []
+      }
       waitlist_interest: {
         Row: {
           created_at: string
