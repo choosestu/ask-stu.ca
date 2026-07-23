@@ -136,9 +136,13 @@ export const Route = createFileRoute("/api/public/chat")({
 
         if (!upstream.ok || !upstream.body) {
           const text = await upstream.text().catch(() => "");
-          return new Response(text || "Upstream error", {
-            status: upstream.status || 502,
-          });
+          console.error(
+            `[chat] upstream error status=${upstream.status} body=${text.slice(0, 500)}`,
+          );
+          return new Response(
+            JSON.stringify({ error: "chat_unavailable" }),
+            { status: 502, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         return new Response(upstream.body, {
