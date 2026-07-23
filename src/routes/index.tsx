@@ -27,17 +27,14 @@ function Index() {
         <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
           Ask Stu.
         </h1>
-        <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-          After 28 years in Ontario real estate, I've answered thousands of questions from new agents. Everything from identifying what's in a mechanical room to writing offers, negotiating deals, understanding TRESA, paperwork, inspections, and everyday situations that don't get taught in licensing courses.
-        </p>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Ask a question. Upload a photo. Get an answer.
-          <br />
-          Free. No account required.
-        </p>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Go ahead. Ask Stu.
-        </p>
+        <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
+          <p>
+            After 28 years in Ontario real estate, I've answered thousands of questions from new agents. Everything from identifying what's in a mechanical room to writing offers, negotiating deals, understanding TRESA, paperwork, inspections, and everyday situations that don't get taught in licensing courses.
+          </p>
+          <p>Ask a question. Upload a photo. Get an answer.</p>
+          <p>Free. No account required.</p>
+          <p>Go ahead. Ask Stu.</p>
+        </div>
         <div className="mt-8">
           <Link
             to="/s2"
