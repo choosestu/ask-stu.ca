@@ -1,14 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChatSurface } from "@/components/ChatSurface";
 
-interface S2Search {
-  photo?: number;
-}
-
 export const Route = createFileRoute("/s2")({
-  validateSearch: (search: Record<string, unknown>): S2Search => ({
-    photo: search.photo ? Number(search.photo) : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "S2 — AskStu.ca" },
@@ -29,6 +22,5 @@ export const Route = createFileRoute("/s2")({
 });
 
 function S2Page() {
-  const { photo } = Route.useSearch();
-  return <ChatSurface variant="full" autoOpenPhoto={photo === 1} />;
+  return <ChatSurface variant="full" />;
 }
