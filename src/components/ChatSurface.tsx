@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, X } from "lucide-react";
-import { useS2Chat } from "@/lib/s2-chat-store";
+import { useChat } from "@/lib/chat-store";
 import { compressImageToDataUrl } from "@/lib/image-compress";
 import { PaperworkCTA } from "./PaperworkCTA";
 
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ChatSurface({ variant }: Props) {
-  const { messages, status, error, sendMessage } = useS2Chat();
+  const { messages, status, error, sendMessage } = useChat();
   const [input, setInput] = useState("");
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [preparingImage, setPreparingImage] = useState(false);
@@ -67,7 +67,7 @@ export function ChatSurface({ variant }: Props) {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 && (
           <div className="mx-auto max-w-md py-8 text-center text-sm text-muted-foreground">
-            Ask S2 an Ontario real estate question.
+            I'm Stu, ask me anything about Ontario real estate.
           </div>
         )}
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
@@ -141,7 +141,7 @@ export function ChatSurface({ variant }: Props) {
                 }
               }}
               rows={1}
-              placeholder={pendingImage ? "Add a caption (optional)…" : "Ask S2…"}
+              placeholder={pendingImage ? "Add a caption (optional)…" : "Ask Stu…"}
               className="min-h-[40px] max-h-32 flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
             />
             <input

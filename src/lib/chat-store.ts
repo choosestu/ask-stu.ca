@@ -92,7 +92,7 @@ async function sendMessage(text: string, imageDataUrl?: string) {
   }));
 
   try {
-    const res = await fetch("/api/public/s2-chat", {
+    const res = await fetch("/api/public/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: payload }),
@@ -164,7 +164,7 @@ function reset() {
   setState({ messages: [], status: "idle", error: null });
 }
 
-export function useS2Chat() {
+export function useChat() {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return {
     messages: snap.messages,
