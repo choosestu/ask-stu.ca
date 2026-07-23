@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      knowledge_sources: {
+        Row: {
+          created_at: string
+          effective_date: string | null
+          id: string
+          issuing_body: string | null
+          passage: string | null
+          source_url: string | null
+          title: string | null
+          topic: string
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          issuing_body?: string | null
+          passage?: string | null
+          source_url?: string | null
+          title?: string | null
+          topic: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          issuing_body?: string | null
+          passage?: string | null
+          source_url?: string | null
+          title?: string | null
+          topic?: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       rate_limit: {
         Row: {
           count: number
