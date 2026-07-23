@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { ChatSurface } from "@/components/ChatSurface";
 
+const chatSearchSchema = z.object({
+  photo: fallback(z.number().int(), 0).default(0),
+});
+
 export const Route = createFileRoute("/chat")({
+  validateSearch: zodValidator(chatSearchSchema),
   head: () => ({
     meta: [
       { title: "Ask Stu — Chat" },
@@ -22,5 +29,6 @@ export const Route = createFileRoute("/chat")({
 });
 
 function ChatPage() {
-  return <ChatSurface variant="full" />;
+  const { photo } = Route.useSearch();
+  return <ChatSurface variant="full" autoOpenPhoto={photo === 1} />;
 }
