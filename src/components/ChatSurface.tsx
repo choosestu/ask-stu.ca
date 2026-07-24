@@ -4,6 +4,7 @@ import { useChat } from "@/lib/chat-store";
 import { compressImageToDataUrl } from "@/lib/image-compress";
 import { PaperworkCTA } from "./PaperworkCTA";
 import type { ChatMessage } from "@/lib/chat-store";
+import { Markdown } from "@/lib/markdown";
 
 interface Props {
   variant: "panel" | "full";
@@ -112,7 +113,7 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                   className={
                     m.role === "user"
                       ? "self-end rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap"
-                      : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%] whitespace-pre-wrap"
+                      : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%]"
                   }
                 >
                   {m.role === "user" && m.imageDataUrl && (
@@ -122,7 +123,15 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                       className="mb-2 max-h-64 rounded-lg object-cover"
                     />
                   )}
-                  {m.content || (m.streaming ? "…" : "")}
+                  {m.role === "assistant" ? (
+                    m.content ? (
+                      <Markdown text={m.content} />
+                    ) : m.streaming ? (
+                      "…"
+                    ) : null
+                  ) : (
+                    m.content || (m.streaming ? "…" : "")
+                  )}
                 </div>
                 {m.role === "assistant" && !m.streaming && m.content && (
                   <div className="self-start">
