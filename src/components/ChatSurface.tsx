@@ -170,7 +170,10 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                 </div>
                 {m.role === "assistant" && !m.streaming && m.content && (
                   <div className="mt-2 flex flex-wrap items-center gap-2 self-start">
-                    <PaperworkCTA />
+                    <FollowUpSuggestion
+                      messageId={m.id}
+                      disabled={status === "streaming" || isLocked}
+                    />
                     {m.id === lastAssistantId && (
                       <button
                         type="button"
