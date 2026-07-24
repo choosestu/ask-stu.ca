@@ -133,8 +133,8 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                 <div
                   className={
                     m.role === "user"
-                      ? "self-end rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap"
-                      : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%]"
+                      ? "self-end rounded-2xl border border-primary/40 bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap shadow-sm"
+                      : "self-start rounded-2xl border border-border bg-card px-3 py-2 text-sm text-card-foreground max-w-[95%] shadow-sm"
                   }
                 >
                   {m.role === "user" && m.imageDataUrl && (
@@ -155,8 +155,18 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                   )}
                 </div>
                 {m.role === "assistant" && !m.streaming && m.content && (
-                  <div className="self-start">
+                  <div className="mt-2 flex flex-wrap items-center gap-2 self-start">
                     <PaperworkCTA />
+                    {m.id === lastAssistantId && (
+                      <button
+                        type="button"
+                        onClick={onAreYouSure}
+                        disabled={status === "streaming" || isLocked}
+                        className="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                      >
+                        Are you sure?
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -168,7 +178,7 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
 
       <form
         onSubmit={onSubmit}
-        className="border-t border-border bg-background p-3"
+        className="border-t border-border bg-muted/40 p-3"
       >
         <div className="mx-auto max-w-2xl">
           {(pendingImage || preparingImage) && (
@@ -247,8 +257,10 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
         </div>
       </form>
     </div>
+    </div>
   );
 }
+
 
 interface SurveyCardProps {
   message: ChatMessage;
