@@ -97,19 +97,33 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
     <div className={shell}>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 && (
-          <div className="mx-auto mt-2 mb-6 max-w-xl overflow-hidden rounded-2xl border border-border">
-            <div className="relative">
-              <img
-                src="/stu-portrait.png"
-                alt=""
-                aria-hidden="true"
-                className="h-64 w-full object-cover object-top sm:h-80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/85" />
-              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                <p className="text-sm leading-relaxed">
+          <div className="mx-auto mt-2 mb-6 max-w-xl">
+            <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
+              <div className="flex justify-center">
+                <img
+                  src="/stu-portrait.png"
+                  alt="Portrait of Stu"
+                  className="w-full max-w-sm rounded-2xl"
+                />
+              </div>
+              <div className="text-sm leading-relaxed text-foreground">
+                <p>
                   Hi. My name is Stu. Thanks for popping by. Over fifty percent of us did one deal or less last year, which means we don't have extra money lying around to pay for expensive AI programs, apps, and fancy marketing material. So I decided to create this so everybody has easy access to reasonably reliable information. That said, AI hallucinates and makes mistakes, so if something doesn't seem right, I've included an "Are you sure?" button, feel free to click that for a second opinion. I hope you like this app. Please let me know if you do.
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <SuggestionChip
+                    label="How do I write a condition?"
+                    prompt="How do I write a condition?"
+                  />
+                  <SuggestionChip
+                    label="Furnace room checks"
+                    prompt="What should I look for in a furnace room?"
+                  />
+                  <SuggestionChip
+                    label="Representation types"
+                    prompt="What is the difference between designated and brokerage representation?"
+                  />
+                </div>
               </div>
             </div>
           </div>
