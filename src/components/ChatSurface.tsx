@@ -79,18 +79,39 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
     isLocked ||
     (!input.trim() && !pendingImage);
 
+  const lastAssistantId = [...messages]
+    .reverse()
+    .find((m) => m.role === "assistant" && !m.streaming && m.content)?.id;
+
+  const onAreYouSure = () => {
+    if (status === "streaming" || isLocked) return;
+    void sendMessage("Are you sure?");
+  };
+
+  const shell = isFull
+    ? "flex h-[100dvh] flex-col bg-background sm:h-[calc(100dvh-2rem)] sm:my-4 sm:mx-auto sm:max-w-3xl sm:rounded-2xl sm:border sm:border-border sm:overflow-hidden"
+    : "flex h-[70vh] max-h-[560px] flex-col";
+
   return (
-    <div
-      className={
-        isFull
-          ? "flex h-[100dvh] flex-col bg-background"
-          : "flex h-[70vh] max-h-[560px] flex-col"
-      }
-    >
+    <div className={isFull ? "bg-background sm:min-h-[100dvh]" : undefined}>
+    <div className={shell}>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 && (
-          <div className="mx-auto max-w-md py-8 text-center text-sm text-muted-foreground">
-            I'm Stu, ask me anything about Ontario real estate.
+          <div className="mx-auto mt-2 mb-6 max-w-xl overflow-hidden rounded-2xl border border-border">
+            <div className="relative">
+              <img
+                src="/stu-portrait.png"
+                alt=""
+                aria-hidden="true"
+                className="h-64 w-full object-cover object-top sm:h-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/85" />
+              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                <p className="text-sm leading-relaxed">
+                  Hi. My name is Stu. Thanks for popping by. Over fifty percent of us did one deal or less last year, which means we don't have extra money lying around to pay for expensive AI programs, apps, and fancy marketing material. So I decided to create this so everybody has easy access to reasonably reliable information. That said, AI hallucinates and makes mistakes, so if something doesn't seem right, I've included an "Are you sure?" button, feel free to click that for a second opinion. I hope you like this app. Please let me know if you do.
+                </p>
+              </div>
+            </div>
           </div>
         )}
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
@@ -112,8 +133,8 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                 <div
                   className={
                     m.role === "user"
-                      ? "self-end rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap"
-                      : "self-start rounded-2xl bg-muted px-3 py-2 text-sm text-foreground max-w-[95%]"
+                      ? "self-end rounded-2xl border border-primary/40 bg-primary px-3 py-2 text-sm text-primary-foreground max-w-[85%] whitespace-pre-wrap shadow-sm"
+                      : "self-start rounded-2xl border border-border bg-card px-3 py-2 text-sm text-card-foreground max-w-[95%] shadow-sm"
                   }
                 >
                   {m.role === "user" && m.imageDataUrl && (
@@ -134,8 +155,18 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
                   )}
                 </div>
                 {m.role === "assistant" && !m.streaming && m.content && (
-                  <div className="self-start">
+                  <div className="mt-2 flex flex-wrap items-center gap-2 self-start">
                     <PaperworkCTA />
+                    {m.id === lastAssistantId && (
+                      <button
+                        type="button"
+                        onClick={onAreYouSure}
+                        disabled={status === "streaming" || isLocked}
+                        className="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                      >
+                        Are you sure?
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -147,7 +178,7 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
 
       <form
         onSubmit={onSubmit}
-        className="border-t border-border bg-background p-3"
+        className="border-t border-border bg-muted/40 p-3"
       >
         <div className="mx-auto max-w-2xl">
           {(pendingImage || preparingImage) && (
@@ -226,8 +257,10 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
         </div>
       </form>
     </div>
+    </div>
   );
 }
+
 
 interface SurveyCardProps {
   message: ChatMessage;
