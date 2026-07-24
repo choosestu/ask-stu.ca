@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, X } from "lucide-react";
 import { useChat } from "@/lib/chat-store";
 import { compressImageToDataUrl } from "@/lib/image-compress";
-import { PaperworkCTA } from "./PaperworkCTA";
+
 import type { ChatMessage } from "@/lib/chat-store";
 import { Markdown } from "@/lib/markdown";
 
