@@ -279,6 +279,63 @@ export function ChatSurface({ variant, autoOpenPhoto = false }: Props) {
 }
 
 
+const SUGGESTION_PROMPTS = [
+  {
+    label: "Want help drafting a condition?",
+    prompt: "Can you help me draft a condition for this?",
+  },
+  {
+    label: "Want to turn this into a CMA?",
+    prompt: "Can you help me put together a CMA for this?",
+  },
+  {
+    label: "Looking for lead gen ideas?",
+    prompt: "Do you have any lead generation ideas for me?",
+  },
+];
+
+function SuggestionChip({ label, prompt }: { label: string; prompt: string }) {
+  const { sendMessage } = useChat();
+  return (
+    <button
+      type="button"
+      onClick={() => sendMessage(prompt)}
+      className="rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+    >
+      {label}
+    </button>
+  );
+}
+
+function followUpFor(messageId: string) {
+  let sum = 0;
+  for (let i = 0; i < messageId.length; i++) {
+    sum += messageId.charCodeAt(i);
+  }
+  return SUGGESTION_PROMPTS[sum % SUGGESTION_PROMPTS.length];
+}
+
+function FollowUpSuggestion({
+  messageId,
+  disabled,
+}: {
+  messageId: string;
+  disabled: boolean;
+}) {
+  const { sendMessage } = useChat();
+  const { label, prompt } = followUpFor(messageId);
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => sendMessage(prompt)}
+      className="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+    >
+      {label}
+    </button>
+  );
+}
+
 interface SurveyCardProps {
   message: ChatMessage;
   onAnswer: (answer: string) => void;
