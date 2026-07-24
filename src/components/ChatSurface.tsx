@@ -4,6 +4,7 @@ import { useChat } from "@/lib/chat-store";
 import { compressImageToDataUrl } from "@/lib/image-compress";
 import { PaperworkCTA } from "./PaperworkCTA";
 import type { ChatMessage } from "@/lib/chat-store";
+import { Markdown } from "@/lib/markdown";
 
 interface Props {
   variant: "panel" | "full";
